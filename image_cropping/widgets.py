@@ -5,7 +5,8 @@ from django import forms
 from django.contrib.admin.widgets import AdminFileWidget, ForeignKeyRawIdWidget
 from django.db.models import ObjectDoesNotExist
 from django.conf import settings
-from django.core.files import File
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 from .config import settings
 from .utils import get_backend
@@ -38,15 +39,13 @@ def get_attrs(image, name):
     try:
         if type(image) is CloudinaryResource:
             img_url = image.url
-            img_path = os.path.join(settings.MEDIA_ROOT, "recipe", os.path.basename(img_url))
+            img_path = os.path.join("recipe", os.path.basename(img_url))
 
-            if not os.path.exists(img_path):
-                with open(img_path, "wb") as f:
-                    f.write(urllib.request.urlopen(img_url).read())
+            if not default_storage.exists(img_path):
+                default_storage.save(img_path, ContentFile(urllib.request.urlopen(img_url).read()))
 
-            image = File(open(img_path, "rb"))
+            image = default_storage.open(img_path)
 
-        # TODO test case
         try:
             # try to use image as a file
             # If the image file has already been closed, open it
