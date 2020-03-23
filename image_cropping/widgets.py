@@ -42,10 +42,9 @@ def get_attrs(image, name):
             img_path = os.path.join("recipe", os.path.basename(img_url))
 
             if not default_storage.exists(img_path):
-                default_storage.save(img_path, ContentFile(urllib.request.urlopen(img_url).read()))
+                img_path = default_storage.save(img_path, ContentFile(urllib.request.urlopen(img_url).read()))
 
             image = default_storage.open(img_path)
-
         try:
             # try to use image as a file
             # If the image file has already been closed, open it
