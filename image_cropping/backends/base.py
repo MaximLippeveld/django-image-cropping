@@ -18,6 +18,7 @@ class ImageBackend(metaclass=abc.ABCMeta):
         'foreign_key': widgets.CropForeignKeyWidget,
         'hidden': widgets.HiddenImageCropWidget,
         'ImageField': widgets.ImageCropWidget,
+        'CloudinaryField': widgets.ImageCropWidget,
         'ImageCropField': widgets.ImageCropWidget,
     }
 

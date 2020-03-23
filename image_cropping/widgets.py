@@ -4,9 +4,16 @@ import django
 from django import forms
 from django.contrib.admin.widgets import AdminFileWidget, ForeignKeyRawIdWidget
 from django.db.models import ObjectDoesNotExist
+from django.conf import settings
+from django.core.files import File
 
 from .config import settings
 from .utils import get_backend
+
+from cloudinary import CloudinaryResource
+
+import urllib.request
+import os
 
 try:
     # Django >= 1.9
@@ -29,6 +36,16 @@ def thumbnail_url(image_path):
 
 def get_attrs(image, name):
     try:
+        if type(image) is CloudinaryResource:
+            img_url = image.url
+            img_path = os.path.join(settings.MEDIA_ROOT, "recipe", os.path.basename(img_url))
+
+            if not os.path.exists(img_path):
+                with open(img_path, "wb") as f:
+                    f.write(urllib.request.urlopen(img_url).read())
+
+            image = File(open(img_path, "rb"))
+
         # TODO test case
         try:
             # try to use image as a file
@@ -45,6 +62,7 @@ def get_attrs(image, name):
         try:
             # open image and rotate according to its exif.orientation
             width, height = get_backend().get_size(image)
+            image = img_path
         except AttributeError:
             # invalid image -> AttributeError
             width = image.width
