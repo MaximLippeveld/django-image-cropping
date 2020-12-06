@@ -9,16 +9,20 @@ django-image-cropping
     :target: http://travis-ci.org/jonasundderwolf/django-image-cropping
     :alt: Build Status
 
-.. image:: https://coveralls.io/repos/jonasundderwolf/django-image-cropping/badge.png?branch=master
-    :target: https://coveralls.io/r/jonasundderwolf/django-image-cropping
-    :alt: Coverage
+.. image:: https://img.shields.io/pypi/pyversions/django-image-cropping.svg
+    :target: https://pypi.python.org/pypi/django-image-cropping
+
+.. image:: https://img.shields.io/pypi/djversions/django-image-cropping
+    :alt: PyPI - Django Version
+    :target: https://pypi.python.org/pypi/django-image-cropping
 
 django-image-cropping is an app for cropping uploaded images via Django's admin backend using `Jcrop
 <https://github.com/tapmodo/Jcrop>`_.
 
 Screenshot:
 
-.. image:: http://www.jonasundderwolf.de/media/images/django_image_cropping_example.png
+.. image:: docs/django_image_cropping_example.png
+    :alt: Screenshot of the cropping
 
 django-image-cropping is perfect when you need images with a specific size for your templates but want your
 users or editors to upload images of any dimension. It presents a selection with a fixed aspect ratio so your users
@@ -334,6 +338,22 @@ The cropping widget is not displayed when using a ``ForeignKey``.
 Changelog
 =========
 
+1.5
+---
+
+- Drop support for Python 3.5 (although it should still work)
+- Add support for Django 3.1
+- Minified JS and reduce potential for incompatibility with other django libraries (See #148)
+- Fix formfield_for_dbfield signature (#134)
+- Fix CSS property word separator (#131)
+- Enforce isort in tests
+
+1.4
+---
+
+- Removed more old code
+- Move testing and packaging to GitHub Actions
+
 1.3
 ---
 
@@ -392,6 +412,6 @@ Noteable (breaking) changes and things to be considered when upgrading from an o
 0.7
 ---
 
-- Made the widget for the ``ImageCropField`` overwriteable to allow custom widgets. (Remember to use the ``ImageCroppingMixin`` in the admin as the image cropping widgets are no longer implicitly set.)
+- Made the widget for the ``ImageCropField`` overwritable to allow custom widgets. (Remember to use the ``ImageCroppingMixin`` in the admin as the image cropping widgets are no longer implicitly set.)
 - Updated ``Jcrop`` and ``jQuery`` dependencies.
 - Moved docs to *Read the Docs*: https://django-image-cropping.readthedocs.org

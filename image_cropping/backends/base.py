@@ -1,6 +1,5 @@
 import abc
 
-import django
 from django.utils.translation import ugettext as _
 
 from .. import widgets
@@ -12,7 +11,7 @@ class ImageBackend(metaclass=abc.ABCMeta):
     backend should provide.
     """
 
-    exceptions_to_catch = (IOError, )
+    exceptions_to_catch = (IOError,)
 
     WIDGETS = {
         'foreign_key': widgets.CropForeignKeyWidget,
@@ -37,21 +36,22 @@ class ImageBackend(metaclass=abc.ABCMeta):
 
     def get_widget(self, db_field, target, admin_site):
         "Get the widget from a db_field"
-        if target['fk_field']:
+        if target["fk_field"]:
             # it's a ForeignKey
-            return self.WIDGETS['foreign_key'](
+            return self.WIDGETS["foreign_key"](
                 db_field.remote_field,
-                field_name=target['fk_field'],
+                field_name=target["fk_field"],
                 admin_site=admin_site,
             )
-        elif target['hidden']:
+        elif target["hidden"]:
             # it's a hidden ImageField
-            return self.WIDGETS['hidden']
+            return self.WIDGETS["hidden"]
         else:
             # it's a regular image field, get from its class name
             class_name = type(db_field).__name__
             if class_name not in self.WIDGETS:
-                msg = _("There's no widget registered to the class {class_name}").format(
-                    class_name=class_name)
+                msg = _(
+                    "There's no widget registered to the class {class_name}"
+                ).format(class_name=class_name)
                 raise ValueError(msg)
             return self.WIDGETS[class_name]

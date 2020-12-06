@@ -1,7 +1,7 @@
 import logging
 
-import django
 from django import forms
+from django.apps import apps
 from django.contrib.admin.widgets import AdminFileWidget, ForeignKeyRawIdWidget
 from django.db.models import ObjectDoesNotExist
 from django.conf import settings
@@ -11,26 +11,14 @@ from django.core.files.storage import default_storage
 from .config import settings
 from .utils import get_backend
 
-from cloudinary import CloudinaryResource
-
-import urllib.request
-import os
-
-try:
-    # Django >= 1.9
-    from django.apps import apps
-    get_model = apps.get_model
-except ImportError:
-    from django.db.models import get_model
-
 logger = logging.getLogger(__name__)
 
 
 def thumbnail_url(image_path):
     thumbnail_options = {
-        'detail': True,
-        'upscale': True,
-        'size': settings.IMAGE_CROPPING_THUMB_SIZE,
+        "detail": True,
+        "upscale": True,
+        "size": settings.IMAGE_CROPPING_THUMB_SIZE,
     }
     return get_backend().get_thumbnail_url(image_path, thumbnail_options)
 
@@ -66,13 +54,13 @@ def get_attrs(image, name):
             width = image.width
             height = image.height
         return {
-            'class': "crop-thumb",
-            'data-thumbnail-url': thumbnail_url(image),
-            'data-field-name': name,
-            'data-org-width': width,
-            'data-org-height': height,
-            'data-max-width': width,
-            'data-max-height': height,
+            "class": "crop-thumb",
+            "data-thumbnail-url": thumbnail_url(image),
+            "data-field-name": name,
+            "data-org-width": width,
+            "data-org-height": height,
+            "data-max-width": width,
+            "data-max-height": height,
         }
     except (ValueError, AttributeError, IOError):
         # can't create thumbnail from image
@@ -80,11 +68,9 @@ def get_attrs(image, name):
 
 
 class CropWidget:
-
     def _media(self):
         js = [
-            "image_cropping/js/jquery.Jcrop.min.js",
-            "image_cropping/image_cropping.js",
+            "image_cropping/js/dist/image_cropping.min.js",
         ]
 
         if settings.IMAGE_CROPPING_JQUERY_URL:
@@ -120,7 +106,7 @@ class HiddenImageCropWidget(ImageCropWidget):
         # we need to hide it the whole field by JS because the admin
         # doesn't yet support hidden fields:
         # https://code.djangoproject.com/ticket/11277
-        attrs['data-hide-field'] = True
+        attrs["data-hide-field"] = True
         render_args = [name, value, attrs]
         if renderer:
             render_args.append(renderer)
@@ -129,7 +115,7 @@ class HiddenImageCropWidget(ImageCropWidget):
 
 class CropForeignKeyWidget(ForeignKeyRawIdWidget, CropWidget):
     def __init__(self, *args, **kwargs):
-        self.field_name = kwargs.pop('field_name')
+        self.field_name = kwargs.pop("field_name")
         super().__init__(*args, **kwargs)
 
     def render(self, name, value, attrs=None, renderer=None):
@@ -142,17 +128,21 @@ class CropForeignKeyWidget(ForeignKeyRawIdWidget, CropWidget):
             model_name = rel_to._meta.object_name.lower()
             try:
                 image = getattr(
-                    get_model(app_name, model_name).objects.get(pk=value),
+                    apps.get_model(app_name, model_name).objects.get(pk=value),
                     self.field_name,
                 )
                 if image:
                     attrs.update(get_attrs(image, name))
             except (ObjectDoesNotExist, LookupError):
-                logger.error("Can't find object: %s.%s with primary key %s "
-                             "for cropping." % (app_name, model_name, value))
+                logger.error(
+                    "Can't find object: %s.%s with primary key %s "
+                    "for cropping." % (app_name, model_name, value)
+                )
             except AttributeError:
-                logger.error("Object %s.%s doesn't have an attribute named '%s'." % (
-                    app_name, model_name, self.field_name))
+                logger.error(
+                    "Object %s.%s doesn't have an attribute named '%s'."
+                    % (app_name, model_name, self.field_name)
+                )
 
         render_args = [name, value, attrs]
         if renderer:
